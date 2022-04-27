@@ -241,7 +241,8 @@ class Program
     //- każdy znak jest cyfrą
     public static Predicate<string> IsPhoneNumber()
     {
-        return s => s.Length == 9 && s.All(c => char.IsDigit(c));
+        //usuń zgłoszenie wyjątku i wpisz rozwiązanie
+        throw new NotImplementedException();
     }
     public static List<Person> LoadPeople(List<String> RawData, Predicate<string> validator)
     {
