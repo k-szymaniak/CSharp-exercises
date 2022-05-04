@@ -89,6 +89,19 @@ namespace Lab_8
             Enumerable.Range(0, ints.Length).Select(i => ints[i] * ints[i]).ToArray();
             Console.WriteLine(string.Join(", ", powerInt));
 
+            Random random = new Random();
+            random.Next(9999);
+            Console.WriteLine(random.Next(11));
+            Console.WriteLine(random.Next(11));
+            Console.WriteLine(random.Next(11));
+            Console.WriteLine(random.Next(11));
+            Console.WriteLine(random.Next(11));
+            Console.WriteLine(random.Next(11));
+            Console.WriteLine(random.Next(11));
+            Console.WriteLine(random.Next(11));
+            Console.WriteLine(random.Next(11));
+            Console.WriteLine(random.Next(11));
+
         }
     }
 }
