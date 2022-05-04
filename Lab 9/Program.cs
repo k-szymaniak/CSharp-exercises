@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Xml.Linq;
+using System.Net;
 
 namespace Lab_9
 {
@@ -10,17 +11,17 @@ namespace Lab_9
         static void Main(string[] args)
         {
             AppContext context = new AppContext();
-            context.Database.EnsureCreated();           
+            context.Database.EnsureCreated();
             IQueryable<Book> books = from book in context.Books
-            where book.EditionYear > 2019
-            select book;
+                                     where book.EditionYear > 2019
+                                     select book;
             Console.WriteLine(string.Join("\n", books));
 
             var list = from book in context.Books
-            join author in context.Authors
-            on book.AuthorId equals author.Id
-            where book.EditionYear > 2019
-            select new { BookAuthor = author.Name, Title = book.Title };
+                       join author in context.Authors
+                       on book.AuthorId equals author.Id
+                       where book.EditionYear > 2019
+                       select new { BookAuthor = author.Name, Title = book.Title };
 
             Console.WriteLine(string.Join("\n", list));
 
@@ -28,7 +29,7 @@ namespace Lab_9
                 context.Books.Where(b => b.EditionYear > 2019),
                 a => a.Id,
                 b => b.AuthorId,
-                (a , b) => new { BookAuthor = a.Name, Title = b.Title }
+                (a, b) => new { BookAuthor = a.Name, Title = b.Title }
                 );
             foreach (var item in list)
             {
@@ -36,28 +37,50 @@ namespace Lab_9
             }
 
             var listcopy = from book in context.Books
-                       join bookcopy in context.BookCopies
-                       on book.Id equals bookcopy.BookId
-                       select new { UniqueNumber = bookcopy.UniqueNumber, Title = book.Title };
+                           join bookcopy in context.BookCopies
+                           on book.Id equals bookcopy.BookId
+                           select new { UniqueNumber = bookcopy.UniqueNumber, Title = book.Title };
 
             Console.WriteLine(string.Join("\n", listcopy));
+
+            string xml =
+                "<books>" +
+                    "<book>" +
+                        "<id>1</id>" +
+                        "<title>c#</title>" +
+                    "</book>" +
+                    "<book>" +
+                        "<id>2</id>" +
+                        "<title>JAVA</title>" +
+                    "</book>" +
+                "</books>";
+            XDocument doc = XDocument.Parse(xml);
+            var booksId = doc
+                  .Elements("books")
+                  .Elements("book")
+                  .Select(x => new { Id = x.Elements("id").Value, Title = x.Elements("title").Value });
+            foreach (var e in booksId)
+            {
+                Console.WriteLine(e);
+            }
+            WebClient client = new WebClient();
+            client.Headers.Add("Accept", "application/xml");
+            xml = client.DownloadString("");
+            Console.WriteLine(xml);
+            doc.Elements("ArrayOfExchangeRatesTable")
+                .Elements("ExchangeRatesTable")
+                .Elements("Rates")
+                .Select(n => new
+                
+                
+                
+                
+                )
+
         }
-        string xml =
-            "<books>" +
-                "<book>" +
-                    "<id>1</id>" +
-                    "<title>c#</title>" +
-                "</book>" +
-                "<book>" +
-                    "<id>2</id>" +
-                    "<title>JAVA</title>" +
-                "</book>" +
-            "</books>";
-        XDocument doc = XDocument.Parse(xml);
-            System.Collections.Generic.IEnumerable<XElement> booksId = XDocument
-            .Elements("books")
-            .Elements("book")
     }
+
+   
 
     public record Book
     {
