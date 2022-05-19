@@ -28,6 +28,26 @@ namespace Lab_2
         }
     }
 
+    abstract class Vehicle
+    {
+
+    }
+
+    abstract class Scooter : Vehicle
+    {
+
+    }
+
+    abstract class ElectricScooter : Scooter
+    {
+
+    }
+
+    abstract class KickScooter : Scooter
+    {
+
+    }
+
     interface IFly
     {
         void Fly();

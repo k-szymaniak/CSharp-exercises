@@ -69,13 +69,14 @@ namespace Lab_9
             Console.WriteLine(xml);
             doc.Elements("ArrayOfExchangeRatesTable")
                 .Elements("ExchangeRatesTable")
-                .Elements("Rates")
-                .Select(n => new
-                
-                
-                
-                
-                )
+                .Elements("Rates");
+                //.Select(n => new
+
+
+
+
+
+                );
 
         }
     }
