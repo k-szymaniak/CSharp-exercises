@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
-using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -14,74 +12,62 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using System.Xml.Linq;
+using Newtonsoft.Json;
+using System.Net;
+using static Project.WeatherInfo;
+using Microsoft.Win32;
+using System.IO;
+using Project;
 
-namespace App1
+namespace Project
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
     {
-
-        record Rate(string currency, string Code, decimal Ask, decimal Bid);
-        Dictionary<string, Rate> Rates = new Dictionary<string, Rate>();
-
-        private void DownloadData()
-        {
-            CultureInfo culture = CultureInfo.CreateSpecificCulture("en-EN");
-            WebClient client = new WebClient();
-            client.Headers.Add("Accept", "application/xml");
-            string xml = client.DownloadString("http://api.nbp.pl/api/exchangerates/tables/C");
-            XDocument doc = XDocument.Parse(xml);
-            List<Rate> list = doc
-                .Elements("ArrayOfExchangeRatesTable")
-                .Elements("ExchangeRatesTable")
-                .Elements("Rates")
-                .Elements("Rate")
-                .Select(n => new Rate(n.Element("Currency").Value, n.Element("Code").Value, decimal.Parse(n.Element("Ask").Value, culture), decimal.Parse(n.Element("Bid").Value, culture))
-                ).ToList();
-            foreach (Rate rate in list)
-            {
-                Rates.Add(rate.Code, rate);
-            }
-        }
-
         public MainWindow()
         {
             InitializeComponent();
-            DownloadData();
-            foreach (string code in Rates.Keys)
-            {
-                InputCurrencyCode.Items.Add(code);
-                OutputCurrencyCode.Items.Add(code);
-            }
-            InputCurrencyCode.SelectedIndex = 0;
-            OutputCurrencyCode.SelectedIndex = 1;
-
         }
-
-        private void CalcOutput(object sender, RoutedEventArgs e)
+        string ApiKey = "ed9746ae7fa8eca657ecc0bc286c50f0";
+        private void btnSearch_Click(object sender, EventArgs e)
         {
-            string inputCode = (string)InputCurrencyCode.SelectedItem;
-            string outputCode = (string)OutputCurrencyCode.SelectedItem;
-            string amountStr = InputValue.Text;
-            decimal amount = decimal.Parse(amountStr);
-            Rate inputRate = Rates[inputCode];
-            Rate outputRate = Rates[outputCode];
-            decimal output = amount * inputRate.Ask / outputRate.Ask;
-            OutputValue.Text = output.ToString("N2");
+            getWeather();
+
         }
 
-        private void NumberValid(object sender, TextCompositionEventArgs e)
+        void getWeather()
         {
-            string input = e.Text;
-            if (input.EndsWith(","))
+            using (WebClient web = new WebClient())
             {
-                input += 0;
-            }
-            e.Handled = !decimal.TryParse(input, out decimal values);
+                string url = string.Format("https://api.openweathermap.org/data/2.5/weather?q={0}&appid={1}", TBCity.Text, ApiKey);
+                var json = web.DownloadString(url);
+                WeatherInfo.root Info = JsonConvert.DeserializeObject<WeatherInfo.root>(json);
 
+
+
+
+
+                Condition.Content = Info.weather[0].main;
+                Details.Content = Info.weather[0].description;
+                Sunset.Content = ConvertDateTime(Info.sys.sunset).ToShortTimeString();
+                Sunrise.Content = ConvertDateTime(Info.sys.sunrise).ToShortTimeString();
+                Temp.Content = Kelvin2Celsius(Info.main.temp).ToString() + " C";
+                WindSpeed.Content = Info.wind.speed.ToString() + " km/h";
+                Pressure.Content = Info.main.pressure.ToString();
+            }
         }
+        DateTime ConvertDateTime(long sec)
+        {
+            DateTime day = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc).ToLocalTime();
+            day = day.AddSeconds(sec).ToLocalTime();
+
+            return day;
+        }
+
+        static double Kelvin2Celsius(double num) => (num - 272.15);
+
+
     }
 }
