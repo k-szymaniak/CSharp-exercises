@@ -1,0 +1,3 @@
+https://github.com/k-szymaniak/ProgramowanieObiektowe
+
+Prosta aplikacja, która sprawdza pogodę. 
